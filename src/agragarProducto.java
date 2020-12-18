@@ -15,31 +15,30 @@ import javax.swing.table.DefaultTableModel;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author FabricioNicolas
  */
 public class agragarProducto extends javax.swing.JFrame {
-     
+
     ArrayList<TiempoEnAños> TiempoEnAños = new ArrayList();
-    
+
     private final String dataBase = "bodega";
     private final String user = "root";
     private final String password = "1234";
-    private final String URL = "jdbc:mysql://localhost:3306/"+dataBase+"?autoReconnect=true&useSSL=false";
-    
+    private final String URL = "jdbc:mysql://localhost:3306/" + dataBase + "?autoReconnect=true&useSSL=false";
+
     private Connection con = null;
-    
+
     String id;
-    
-    public Connection getConexion(){
-        
+
+    public Connection getConexion() {
+
         try {
             Class.forName("com.mysql.jdbc.Driver");
             con = (Connection) DriverManager.getConnection(URL, user, password);
 
-             //JOptionPane.showMessageDialog(null, "conexion exitosa");
+            //JOptionPane.showMessageDialog(null, "conexion exitosa");
         } catch (Exception ex) {
 
             JOptionPane.showMessageDialog(null, "Error " + ex);
@@ -48,63 +47,54 @@ public class agragarProducto extends javax.swing.JFrame {
 
         return con;
     }
-    
-     
-     
-      public void limpiar(){
+
+    public void limpiar() {
         Tid.setText("");
         Tproducto.setText("");
         Tdescripcion.setText("");
         Fentrada.setDate(null);
-        
+
     }
-    
-      public void cargarTabla(){
-        
+
+    public void cargarTabla() {
+
         DefaultTableModel modeloTabla = new DefaultTableModel();
         Tactivos.setModel(modeloTabla);
-        
+
         modeloTabla.addColumn("Id");
         modeloTabla.addColumn("Producto");
         modeloTabla.addColumn("Descripcion");
         modeloTabla.addColumn("Entrada");
         modeloTabla.addColumn("T.S(años)");
-     
-        
-        
-        
+
         PreparedStatement ps;
         ResultSet rs;
-        
-        
-        try{
+
+        try {
             Connection con = getConexion();
-            
+
             ps = (PreparedStatement) con.prepareStatement("SELECT* FROM activos");
             rs = ps.executeQuery();
-            
-            while(rs.next()){
-                
+
+            while (rs.next()) {
+
                 Object fila[] = new Object[6];
-                for (int i = 0; i <6; i++) {
-                  fila[i]=rs.getObject(i+1);
+                for (int i = 0; i < 6; i++) {
+                    fila[i] = rs.getObject(i + 1);
                 }
                 modeloTabla.addRow(fila);
             }
-            
+
+        } catch (SQLException e) {
+            System.err.println("Error " + e);
         }
-        catch(SQLException e){
-            System.err.println("Error "+e);
-        }
-        
-        
-        
+
     }
-    
-      public agragarProducto() {
+
+    public agragarProducto() {
         initComponents();
         cargarTabla();
-        
+
     }
 
     /**
@@ -281,18 +271,18 @@ public class agragarProducto extends javax.swing.JFrame {
 
     private void BagregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BagregarActionPerformed
         int id = Integer.parseInt(Tid.getText());
-        String producto= Tproducto.getText();
-        String descripcion =Tdescripcion.getText();
-        Date entrada= Fentrada.getDate();
-       
+        String producto = Tproducto.getText();
+        String descripcion = Tdescripcion.getText();
+        Date entrada = Fentrada.getDate();
+
         Date date = Fentrada.getDate();
-        long d =date.getTime();
-        java.sql.Date fecha =new java.sql.Date(d);
-       TiempoEnAños calculo =new TiempoEnAños(id , producto,descripcion,entrada);
+        long d = date.getTime();
+        java.sql.Date fecha = new java.sql.Date(d);
+        TiempoEnAños calculo = new TiempoEnAños(id, producto, descripcion, entrada);
         Connection conexion;
         PreparedStatement ps;
 
-        try{
+        try {
 
             conexion = getConexion();
             ps = (PreparedStatement) conexion.prepareStatement("INSERT INTO activos VALUES (?,?,?,?,?,?)");
@@ -300,122 +290,113 @@ public class agragarProducto extends javax.swing.JFrame {
             ps.setString(2, Tproducto.getText());
             ps.setString(3, Tdescripcion.getText());
             ps.setDate(4, fecha);
-            ps.setInt(5,calculo.CalcularAño());
+            ps.setInt(5, calculo.CalcularAño());
             ps.setString(6, "si");
-            
-            
 
             int result = ps.executeUpdate();
 
-            if(result>0){
+            if (result > 0) {
 
                 JOptionPane.showMessageDialog(null, "Producto insertado correctamente");
 
                 limpiar();
                 cargarTabla();
-            }
-
-            else{
+            } else {
                 JOptionPane.showMessageDialog(null, "Producto no insertado");
             }
 
             conexion.close();
-        }
-        catch(SQLException ex){
-            JOptionPane.showMessageDialog(null, "Error "+ex);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error " + ex);
         }
     }//GEN-LAST:event_BagregarActionPerformed
 
     private void BmodificarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BmodificarProductoActionPerformed
         Date date = Fentrada.getDate();
-        long d =date.getTime();
-        java.sql.Date fecha =new java.sql.Date(d);
-           
-           ResultSet rs = null;
-           Connection conexion = getConexion();
-           int ts=0;
-           
-            try {
-                PreparedStatement ps1 = (PreparedStatement) conexion.prepareStatement("SELECT* from activos Where id=" + Tid.getText());
-                rs = ps1.executeQuery();
-                if (rs.next()) {
-               ts =rs.getInt("tiempostock");
-               
-                
-                }
-                PreparedStatement ps = (PreparedStatement) conexion.prepareStatement("UPDATE activos set id=?, producto=?,descripcion=?, entrada =?,tiempostock=?,estatus=? WHERE id ="+Tid.getText());
-                ps.setString(1,Tid.getText());
-                ps.setString(2, Tproducto.getText());
-                ps.setString(3, Tdescripcion.getText());
-                ps.setDate(4, fecha);
-                ps.setInt(5,ts );
-                ps.setString(6, "si");
-                
-                int result = ps.executeUpdate();
-                
-                if(result>0){
-                    JOptionPane.showMessageDialog(null, "Producto modificado de manera exitosa");
-                    cargarTabla();
-                    limpiar();
-                }
-                else{
-                    JOptionPane.showMessageDialog(null, "Producto no modificado");
-                }
-                
-                conexion.close();
-            
-            } catch (SQLException ex) {
-                
-                JOptionPane.showMessageDialog(null,"Error "+ex);
+        long d = date.getTime();
+        java.sql.Date fecha = new java.sql.Date(d);
+
+        ResultSet rs = null;
+        Connection conexion = getConexion();
+        int ts = 0;
+
+        try {
+            PreparedStatement ps1 = (PreparedStatement) conexion.prepareStatement("SELECT* from activos Where id=" + Tid.getText());
+            rs = ps1.executeQuery();
+            if (rs.next()) {
+                ts = rs.getInt("tiempostock");
+
             }
-               
-              
+            PreparedStatement ps = (PreparedStatement) conexion.prepareStatement("UPDATE activos set id=?, producto=?,descripcion=?, entrada =?,tiempostock=?,estatus=? WHERE id =" + Tid.getText());
+            ps.setString(1, Tid.getText());
+            ps.setString(2, Tproducto.getText());
+            ps.setString(3, Tdescripcion.getText());
+            ps.setDate(4, fecha);
+            ps.setInt(5, ts);
+            ps.setString(6, "si");
+
+            int result = ps.executeUpdate();
+
+            if (result > 0) {
+                JOptionPane.showMessageDialog(null, "Producto modificado de manera exitosa");
+                cargarTabla();
+                limpiar();
+            } else {
+                JOptionPane.showMessageDialog(null, "Producto no modificado");
+            }
+
+            conexion.close();
+
+        } catch (SQLException ex) {
+
+            JOptionPane.showMessageDialog(null, "Error " + ex);
+        }
+
 
     }//GEN-LAST:event_BmodificarProductoActionPerformed
 
     private void BeliminarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BeliminarProductoActionPerformed
-       Connection conexion;
-       PreparedStatement ps;
-       ResultSet rs;
-       String producto="";
-       String descripcion="";
-        try{
-  
-          conexion = getConexion();
-          String id =JOptionPane.showInputDialog("Ingrese el numero de id a eliminar");
-          PreparedStatement ps1 = (PreparedStatement) conexion.prepareStatement("SELECT* from activos Where id=" + id);
-                rs = ps1.executeQuery();
-                if (rs.next()) {
-                producto=rs.getString("producto");
-                descripcion=rs.getString("descripcion");
+        Connection conexion;
+        PreparedStatement ps;
+        ResultSet rs;
+        String producto = "";
+        String descripcion = "";
+        try {
+
+            conexion = getConexion();
+            String id = JOptionPane.showInputDialog("Ingrese el numero de id a eliminar");
+            PreparedStatement ps1 = (PreparedStatement) conexion.prepareStatement("SELECT* from activos Where id=" + id);
+            rs = ps1.executeQuery();
+            if (rs.next()) {
+                producto = rs.getString("producto");
+                descripcion = rs.getString("descripcion");
             }
-                int n=JOptionPane.showConfirmDialog(null, "Estas seguro de que quieres eliminar el producto : "+producto+" : "+descripcion,null, JOptionPane.YES_NO_OPTION);
-            
-                if (n==JOptionPane.YES_OPTION) {
-                    ps = (PreparedStatement) conexion.prepareStatement("DELETE FROM activos WHERE id=?");
-                ps.setString(1,id);
-                JOptionPane.showMessageDialog(null,"eliminado con exito" );
+            int n = JOptionPane.showConfirmDialog(null, "Estas seguro de que quieres eliminar el producto : " + producto + " : " + descripcion, null, JOptionPane.YES_NO_OPTION);
+
+            if (n == JOptionPane.YES_OPTION) {
+                ps = (PreparedStatement) conexion.prepareStatement("DELETE FROM activos WHERE id=?");
+                ps.setString(1, id);
+                JOptionPane.showMessageDialog(null, "eliminado con exito");
                 ps.executeUpdate();
                 cargarTabla();
-            }else{
-            
-            JOptionPane.showMessageDialog(null, "Producto no eliminado");
+            } else {
+
+                JOptionPane.showMessageDialog(null, "Producto no eliminado");
             }
-            
+
             conexion.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error " + ex);
         }
-        catch(SQLException ex){
-            JOptionPane.showMessageDialog(null, "Error "+ex);
-        }
-        
+
     }//GEN-LAST:event_BeliminarProductoActionPerformed
 
     private void BcerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BcerrarActionPerformed
-       this.dispose();
+        this.dispose();
     }//GEN-LAST:event_BcerrarActionPerformed
 
     private void TactivosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TactivosMouseClicked
- ResultSet rs;
+        ResultSet rs;
 
         if (Tactivos.getSelectedRow() >= 0) {
 
@@ -430,14 +411,13 @@ public class agragarProducto extends javax.swing.JFrame {
                     Tproducto.setText(rs.getString("producto"));
                     Tdescripcion.setText(rs.getString("descripcion"));
                     Fentrada.setDate(rs.getDate("entrada"));
-                    
+
                 }
-               conexion.close();     
+                conexion.close();
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(null, "Error " + ex);
             }
-            
-            
+
         } else {
             JOptionPane.showMessageDialog(null, "Debe seleccionar un id de la tabla");
 

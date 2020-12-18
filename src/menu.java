@@ -22,14 +22,14 @@ public class menu extends javax.swing.JFrame {
     /**
      * Creates new form menu
      */
-     private final String dataBase = "bodega";
+    private final String dataBase = "bodega";
     private final String user = "root";
     private final String password = "1234";
     private final String URL = "jdbc:mysql://localhost:3306/"+dataBase+"?autoReconnect=true&useSSL=false";
     
     private Connection con = null;
     
-    String registro;
+   
     
     public Connection getConexion(){
         

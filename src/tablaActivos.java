@@ -14,28 +14,24 @@ import javax.swing.table.DefaultTableModel;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
-
 public class tablaActivos extends javax.swing.JFrame {
 
-   ArrayList<Bodega> bodega = new ArrayList();
-    
+    ArrayList<Bodega> bodega = new ArrayList();
+
     private final String dataBase = "bodega";
     private final String user = "root";
     private final String password = "1234";
-    private final String URL = "jdbc:mysql://localhost:3306/"+dataBase+"?autoReconnect=true&useSSL=false";
-    
+    private final String URL = "jdbc:mysql://localhost:3306/" + dataBase + "?autoReconnect=true&useSSL=false";
+
     private Connection con = null;
-    
-    String registro;
-    
-    public Connection getConexion(){
-        
+
+    public Connection getConexion() {
+
         try {
             Class.forName("com.mysql.jdbc.Driver");
             con = (Connection) DriverManager.getConnection(URL, user, password);
 
-             //JOptionPane.showMessageDialog(null, "conexion exitosa");
+            //JOptionPane.showMessageDialog(null, "conexion exitosa");
         } catch (Exception ex) {
 
             JOptionPane.showMessageDialog(null, "Error " + ex);
@@ -44,55 +40,47 @@ public class tablaActivos extends javax.swing.JFrame {
 
         return con;
     }
-    
-    public void cargarTabla(){
-        
+
+    public void cargarTabla() {
+
         DefaultTableModel modeloTabla = new DefaultTableModel();
         Tactivos.setModel(modeloTabla);
-        
+
         modeloTabla.addColumn("Id");
         modeloTabla.addColumn("Producto");
         modeloTabla.addColumn("Descripcion");
         modeloTabla.addColumn("Entrada");
         modeloTabla.addColumn("T.S(en años)");
         modeloTabla.addColumn("Estatus");
-        
-               
+
         PreparedStatement ps;
         ResultSet rs;
-              
-        try{
+
+        try {
             Connection con = getConexion();
-            
+
             ps = (PreparedStatement) con.prepareStatement("SELECT* FROM activos");
             rs = ps.executeQuery();
-            
-            while(rs.next()){
-                
+
+            while (rs.next()) {
+
                 Object fila[] = new Object[6];
-                for (int i = 0; i <6; i++) {
-                  fila[i]=rs.getObject(i+1);
+                for (int i = 0; i < 6; i++) {
+                    fila[i] = rs.getObject(i + 1);
                 }
                 modeloTabla.addRow(fila);
-            }        
+            }
+        } catch (SQLException e) {
+            System.err.println("Error " + e);
         }
-        catch(SQLException e){
-            System.err.println("Error "+e);
-        }    
     }
-    
+
     public tablaActivos() {
         initComponents();
         getConexion();
         cargarTabla();
         Rtodos.setSelected(true);
     }
-    
-    
-    
-    
-    
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -178,7 +166,7 @@ public class tablaActivos extends javax.swing.JFrame {
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, true, false, true
+                false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -215,7 +203,7 @@ public class tablaActivos extends javax.swing.JFrame {
         });
 
         buttonGroup2.add(Rinactivo);
-        Rinactivo.setText("Inactivo");
+        Rinactivo.setText("Dados de baja");
         Rinactivo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 RinactivoActionPerformed(evt);
@@ -295,68 +283,67 @@ public class tablaActivos extends javax.swing.JFrame {
     }//GEN-LAST:event_BcerrarActionPerformed
 
     private void BbuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BbuscarActionPerformed
-         String query="";
+        String query = "";
         if (Rtodos.isSelected()) {
             query = "SELECT* FROM activos";
         }
-         
-        if(Rid.isSelected()){
-            query="SELECT* FROM activos WHERE id="+Tbuscar.getText();
+
+        if (Rid.isSelected()) {
+            query = "SELECT* FROM activos WHERE id=" + Tbuscar.getText();
         }
-        
-        if(Rproducto.isSelected()){
-            query ="SELECT* FROM activos WHERE producto LIKE '%"+Tbuscar.getText()+"%'";
+
+        if (Rproducto.isSelected()) {
+            query = "SELECT* FROM activos WHERE producto LIKE '%" + Tbuscar.getText() + "%'";
         }
-        
-         if(Rdescripcion.isSelected()){
-            query ="SELECT* FROM activos WHERE descripcion LIKE '%"+Tbuscar.getText()+"%'";
+
+        if (Rdescripcion.isSelected()) {
+            query = "SELECT* FROM activos WHERE descripcion LIKE '%" + Tbuscar.getText() + "%'";
         }
-        
+
         DefaultTableModel modeloTabla = new DefaultTableModel();
         Tactivos.setModel(modeloTabla);
-        
+
         modeloTabla.addColumn("Id");
         modeloTabla.addColumn("Producto");
         modeloTabla.addColumn("Descripcion");
         modeloTabla.addColumn("Entrada");
         modeloTabla.addColumn("T.S(en años)");
         modeloTabla.addColumn("Estatus");
-        
+
         PreparedStatement ps;
         ResultSet rs;
-               
-        try{
+
+        try {
             Connection con = getConexion();
-            
+
             ps = (PreparedStatement) con.prepareStatement(query);
             rs = ps.executeQuery();
-            
-            while(rs.next()){
-                
+
+            while (rs.next()) {
+
                 Object fila[] = new Object[6];
-                for (int i = 0; i <6; i++) {
-                  fila[i]=rs.getObject(i+1);
+                for (int i = 0; i < 6; i++) {
+                    fila[i] = rs.getObject(i + 1);
                 }
                 modeloTabla.addRow(fila);
             }
-            
+
+        } catch (SQLException e) {
+            System.err.println("Error " + e);
         }
-        catch(SQLException e){
-            System.err.println("Error "+e);
-        }
-    
+
     }//GEN-LAST:event_BbuscarActionPerformed
 
     private void RactivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RactivosActionPerformed
-         String si ="si";
-        String query="";
+        String si = "si";
+        String query = "";
         if (Ractivos.isSelected()) {
-          query ="SELECT* FROM activos WHERE estatus LIKE '%"+si+"%'";
-        
+            query = "SELECT* FROM activos WHERE estatus LIKE '%" + si + "%'";
+
         }
-         DefaultTableModel modeloTabla = new DefaultTableModel();
+        DefaultTableModel modeloTabla = new DefaultTableModel();
         Tactivos.setModel(modeloTabla);
-        
+
         modeloTabla.addColumn("Id");
         modeloTabla.addColumn("Producto");
         modeloTabla.addColumn("Descripcion");
@@ -365,39 +352,38 @@ public class tablaActivos extends javax.swing.JFrame {
         modeloTabla.addColumn("Estatus");
         PreparedStatement ps;
         ResultSet rs;
-        try{
+        try {
             Connection con = getConexion();
-            
+
             ps = (PreparedStatement) con.prepareStatement(query);
             rs = ps.executeQuery();
-            
-            while(rs.next()){
-                
+
+            while (rs.next()) {
+
                 Object fila[] = new Object[6];
-                for (int i = 0; i <6; i++) {
-                  fila[i]=rs.getObject(i+1);
+                for (int i = 0; i < 6; i++) {
+                    fila[i] = rs.getObject(i + 1);
                 }
                 modeloTabla.addRow(fila);
             }
-            
+
+        } catch (SQLException e) {
+            System.err.println("Error " + e);
         }
-        catch(SQLException e){
-            System.err.println("Error "+e);
-        }
-        
+
     }//GEN-LAST:event_RactivosActionPerformed
 
     private void RinactivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RinactivoActionPerformed
-          String si ="si";
-          String no="no";
-        String query="";
+        String si = "si";
+        String no = "no";
+        String query = "";
         if (Rinactivo.isSelected()) {
-          query ="SELECT* FROM activos WHERE estatus LIKE '%"+no+"%'";
-        
+            query = "SELECT* FROM activos WHERE estatus LIKE '%" + no + "%'";
+
         }
-         DefaultTableModel modeloTabla = new DefaultTableModel();
+        DefaultTableModel modeloTabla = new DefaultTableModel();
         Tactivos.setModel(modeloTabla);
-        
+
         modeloTabla.addColumn("Id");
         modeloTabla.addColumn("Producto");
         modeloTabla.addColumn("Descripcion");
@@ -406,27 +392,26 @@ public class tablaActivos extends javax.swing.JFrame {
         modeloTabla.addColumn("Estatus");
         PreparedStatement ps;
         ResultSet rs;
-        try{
+        try {
             Connection con = getConexion();
-            
+
             ps = (PreparedStatement) con.prepareStatement(query);
             rs = ps.executeQuery();
-            
-            while(rs.next()){
-                
+
+            while (rs.next()) {
+
                 Object fila[] = new Object[6];
-                for (int i = 0; i <6; i++) {
-                  fila[i]=rs.getObject(i+1);
+                for (int i = 0; i < 6; i++) {
+                    fila[i] = rs.getObject(i + 1);
                 }
                 modeloTabla.addRow(fila);
             }
-            
+
+        } catch (SQLException e) {
+            System.err.println("Error " + e);
         }
-        catch(SQLException e){
-            System.err.println("Error "+e);
-        }
-        
-                                   
+
+
     }//GEN-LAST:event_RinactivoActionPerformed
 
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
@@ -493,4 +478,3 @@ public class tablaActivos extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     // End of variables declaration//GEN-END:variables
 }
-
